@@ -8,39 +8,46 @@ const router = express.Router();
 // LOGIN ROUTE
 router.post("/login", async (req, res) => {
   try {
-    const { email, password, college } = req.body; // frontend must send college name
+    const { email, password } = req.body;
 
     // Find student by email and populate college
     const student = await Student.findOne({ email }).populate("college");
     if (!student) return res.status(404).json({ error: "Student not found" });
 
-    // Check if student belongs to selected college
-    if (!student.college || student.college.name !== college) {
-      return res.status(403).json({ error: "You are not registered in this college" });
+    // ✅ Check student is linked to a college
+    if (!student.college) {
+      return res.status(403).json({ error: "You are not registered in any college" });
     }
 
-    // Optional: check email domain matches college domain
-    const emailDomain = email.split("@")[1];
-    if (emailDomain !== student.college.domain) {
-      return res.status(403).json({ error: "Invalid email domain" });
+    // ✅ Instead of forcing frontend to send college name/domain,
+    // just trust the student's linked college
+    // (optional: normalize domain check)
+    const emailDomain = email.split("@")[1].trim().toLowerCase();
+    if (emailDomain !== student.college.domain.toLowerCase()) {
+      return res.status(403).json({ error: "Invalid email domain for this college" });
     }
 
-    // Check password
+    // ✅ Check password
     const isMatch = await bcrypt.compare(password, student.password);
     if (!isMatch) return res.status(400).json({ error: "Invalid password" });
 
-    // Generate JWT token
+    // ✅ Generate JWT token
     const token = jwt.sign(
       { id: student._id, college: student.college._id },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
 
-    // Respond with token and student info
+    // ✅ Respond with token + student info
     res.json({
       token,
       studentId: student._id,
-      college: student.college.name,
+      name: student.name,
+      college: {
+        id: student.college._id,
+        name: student.college.name,
+        domain: student.college.domain,
+      },
     });
   } catch (err) {
     console.error(err);

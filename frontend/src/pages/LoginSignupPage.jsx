@@ -1,8 +1,9 @@
+// src/pages/LoginSignupPane.jsx
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const CollegeLoginPage = () => {
+const LoginSignupPane = () => {
   const navigate = useNavigate();
 
   const [colleges, setColleges] = useState([]);
@@ -13,17 +14,16 @@ const CollegeLoginPage = () => {
   });
   const [error, setError] = useState("");
 
-  // 🔹 Fetch colleges from backend on component mount
+  // 🔹 Fetch all colleges when component loads
   useEffect(() => {
     const fetchColleges = async () => {
       try {
         const res = await axios.get("http://localhost:8000/api/colleges");
-        setColleges(res.data); // Assuming backend returns array of college objects
+        setColleges(res.data);
       } catch (err) {
         console.error("Error fetching colleges:", err);
       }
     };
-
     fetchColleges();
   }, []);
 
@@ -41,27 +41,26 @@ const CollegeLoginPage = () => {
     }
 
     try {
-      // Call backend login API
+      // Login API call
       const res = await axios.post("http://localhost:8000/api/auth/login", {
         email: formData.email,
         password: formData.password,
       });
 
-      // Check if college matches selected
+      // ✅ Ensure student belongs to selected college
       if (res.data.college !== formData.college) {
         setError("You are not registered in this college.");
         return;
       }
 
-      // Save token in localStorage or context
+      // Save student details in localStorage
       localStorage.setItem("studentToken", res.data.token);
       localStorage.setItem("studentId", res.data.studentId);
       localStorage.setItem("collegeName", res.data.college);
 
-      // Redirect to dashboard or home page
-      navigate("/dashboard");
+      navigate("/dashboard"); // ✅ redirect after success
     } catch (err) {
-      console.log(err.response?.data);
+      console.error(err.response?.data);
       setError(err.response?.data?.error || "Login failed. Try again.");
     }
   };
@@ -77,6 +76,7 @@ const CollegeLoginPage = () => {
           {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
 
           <form onSubmit={handleSubmit} className="space-y-5">
+            {/* College Dropdown */}
             <div>
               <label className="block text-gray-700 font-medium mb-1">
                 College
@@ -97,6 +97,7 @@ const CollegeLoginPage = () => {
               </select>
             </div>
 
+            {/* Email */}
             <div>
               <label className="block text-gray-700 font-medium mb-1">
                 College Email
@@ -112,6 +113,7 @@ const CollegeLoginPage = () => {
               />
             </div>
 
+            {/* Password */}
             <div>
               <label className="block text-gray-700 font-medium mb-1">
                 College Password
@@ -127,6 +129,7 @@ const CollegeLoginPage = () => {
               />
             </div>
 
+            {/* Submit button */}
             <button
               type="submit"
               className="w-full bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 transition"
@@ -137,6 +140,7 @@ const CollegeLoginPage = () => {
         </div>
       </div>
 
+      {/* Footer */}
       <footer className="bg-white shadow-inner py-4">
         <div className="max-w-4xl mx-auto flex flex-wrap justify-center space-x-6 text-sm text-gray-600">
           <Link to="/PrivacyPolicy" className="hover:text-purple-600">
@@ -160,4 +164,4 @@ const CollegeLoginPage = () => {
   );
 };
 
-export default CollegeLoginPage;
+export default LoginSignupPane;

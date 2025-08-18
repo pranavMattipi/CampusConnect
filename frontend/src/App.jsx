@@ -6,6 +6,7 @@ import IndividualPage from "./pages/IndividualPage";
 import Footer from "./components/Footer";
 import TermsPage from "./pages/TermsPage";
 import ReviewsPage from "./pages/ReviewsPage";
+import BlogPage from "./pages/BlogPage";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import AllEventsPage from "./pages/AllEventsPage";
 import PostEventPage from "./pages/PostEventPage";
@@ -27,6 +28,7 @@ function App() {
         <Route path="/Review" element={<ReviewsPage />} />
         <Route path="/PostEvent" element={<PostEventPage />} />
         <Route path="/LogSign" element={<LoginSignupPage />} />
+        <Route path="/BlogPage" element={<BlogPage />} />
              <Route path="/Terms" element={<TermsPage />} />
          <Route path="/PrivacyPolicy" element={<PrivacyPolicyPage />} />
       </Routes>
