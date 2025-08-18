@@ -1,88 +1,81 @@
-// src/pages/LoginSignupPage.jsx
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-
-const topColleges = [
-  "Aligarh Muslim University",
-  "Amrita Vishwa Vidyapeetham",
-  "Anna University",
-  "Ashoka University",
-  "BITS Pilani",
-  "Chandigarh University",
-  "Christ University",
-  "Delhi University",
-  "IISc Bangalore",
-  "IIT BHU",
-  "IIT Bhubaneswar",
-  "IIT Bombay",
-  "IIT Delhi",
-  "IIT Dharwad",
-  "IIT Gandhinagar",
-  "IIT Goa",
-  "IIT Guwahati",
-  "IIT Hyderabad",
-  "IIT Indore",
-  "IIT Jodhpur",
-  "IIT Kanpur",
-  "IIT Kharagpur",
-  "IIT Madras",
-  "IIT Mandi",
-  "IIT Palakkad",
-  "IIT Patna",
-  "IIT Roorkee",
-  "IIT Tirupati",
-  "IIT Jammu",
-  "Jamia Millia Islamia",
-  "Jadavpur University",
-  "JNU Delhi",
-  "Lovely Professional University",
-  "Mahindra University",
-  "Manipal University",
-  "NIT Calicut",
-  "NIT Durgapur",
-  "NIT Kurukshetra",
-  "NIT Meghalaya",
-  "NIT Rourkela",
-  "NIT Silchar",
-  "NIT Surathkal",
-  "NIT Trichy",
-  "NIT Warangal",
-  "Osmania University",
-  "Pune University",
-  "SRM University",
-  "Shiv Nadar University",
-  "Symbiosis Pune",
-  "University of Hyderabad",
-  "VIT Vellore",
-].sort();
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const CollegeLoginPage = () => {
+  const navigate = useNavigate();
+
+  const [colleges, setColleges] = useState([]);
   const [formData, setFormData] = useState({
     college: "",
     email: "",
     password: "",
   });
+  const [error, setError] = useState("");
+
+  // 🔹 Fetch colleges from backend on component mount
+  useEffect(() => {
+    const fetchColleges = async () => {
+      try {
+        const res = await axios.get("http://localhost:8000/api/colleges");
+        setColleges(res.data); // Assuming backend returns array of college objects
+      } catch (err) {
+        console.error("Error fetching colleges:", err);
+      }
+    };
+
+    fetchColleges();
+  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("College Login Data:", formData);
-    // 🔗 Add backend login API call here
+    setError("");
+
+    if (!formData.college || !formData.email || !formData.password) {
+      setError("Please fill all fields.");
+      return;
+    }
+
+    try {
+      // Call backend login API
+      const res = await axios.post("http://localhost:8000/api/auth/login", {
+        email: formData.email,
+        password: formData.password,
+      });
+
+      // Check if college matches selected
+      if (res.data.college !== formData.college) {
+        setError("You are not registered in this college.");
+        return;
+      }
+
+      // Save token in localStorage or context
+      localStorage.setItem("studentToken", res.data.token);
+      localStorage.setItem("studentId", res.data.studentId);
+      localStorage.setItem("collegeName", res.data.college);
+
+      // Redirect to dashboard or home page
+      navigate("/dashboard");
+    } catch (err) {
+      console.log(err.response?.data);
+      setError(err.response?.data?.error || "Login failed. Try again.");
+    }
   };
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
-      {/* Main container */}
       <div className="flex flex-1 items-center justify-center px-4">
         <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8">
           <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
             College Login
           </h2>
 
-          {/* Login Form */}
+          {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
+
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label className="block text-gray-700 font-medium mb-1">
@@ -96,9 +89,9 @@ const CollegeLoginPage = () => {
                 required
               >
                 <option value="">Select your college</option>
-                {topColleges.map((college, index) => (
-                  <option key={index} value={college}>
-                    {college}
+                {colleges.map((college) => (
+                  <option key={college._id} value={college.name}>
+                    {college.name}
                   </option>
                 ))}
               </select>
@@ -144,7 +137,6 @@ const CollegeLoginPage = () => {
         </div>
       </div>
 
-      {/* Footer */}
       <footer className="bg-white shadow-inner py-4">
         <div className="max-w-4xl mx-auto flex flex-wrap justify-center space-x-6 text-sm text-gray-600">
           <Link to="/PrivacyPolicy" className="hover:text-purple-600">

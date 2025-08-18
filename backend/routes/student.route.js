@@ -8,22 +8,24 @@ const router = express.Router();
 // ADD NEW STUDENT
 router.post("/add", async (req, res) => {
   try {
-    const { name, rollNumber, branch, year, email, password, collegeId, studentId } = req.body;
+    const { name, rollNumber, branch, year, email, password, collegeId } = req.body;
 
+    // Check college exists
     const college = await College.findById(collegeId);
     if (!college) return res.status(404).json({ error: "College not found" });
 
+    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Create new student
     const newStudent = new Student({
       name,
       rollNumber,
       branch,
       year,
       email,
-      studentId,
       password: hashedPassword,
-      college: college._id,
+      college: college._id
     });
 
     await newStudent.save();
