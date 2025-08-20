@@ -1,31 +1,16 @@
 // src/pages/LoginSignupPane.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const LoginSignupPane = () => {
   const navigate = useNavigate();
 
-  const [colleges, setColleges] = useState([]);
   const [formData, setFormData] = useState({
-    college: "",
     email: "",
     password: "",
   });
   const [error, setError] = useState("");
-
-  // 🔹 Fetch all colleges when component loads
-  useEffect(() => {
-    const fetchColleges = async () => {
-      try {
-        const res = await axios.get("http://localhost:8000/api/colleges");
-        setColleges(res.data);
-      } catch (err) {
-        console.error("Error fetching colleges:", err);
-      }
-    };
-    fetchColleges();
-  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -35,30 +20,26 @@ const LoginSignupPane = () => {
     e.preventDefault();
     setError("");
 
-    if (!formData.college || !formData.email || !formData.password) {
+    if (!formData.email || !formData.password) {
       setError("Please fill all fields.");
       return;
     }
 
     try {
-      // Login API call
+      // ✅ Login API call
       const res = await axios.post("http://localhost:8000/api/auth/login", {
         email: formData.email,
         password: formData.password,
       });
 
-      // ✅ Ensure student belongs to selected college
-      if (res.data.college !== formData.college) {
-        setError("You are not registered in this college.");
-        return;
-      }
-
-      // Save student details in localStorage
+      // ✅ Save student details in localStorage
       localStorage.setItem("studentToken", res.data.token);
       localStorage.setItem("studentId", res.data.studentId);
-      localStorage.setItem("collegeName", res.data.college);
+      localStorage.setItem("studentName", res.data.name);
+      localStorage.setItem("collegeName", res.data.college.name);
 
-      navigate("/dashboard"); // ✅ redirect after success
+      // ✅ Redirect to homepage
+      navigate("/");
     } catch (err) {
       console.error(err.response?.data);
       setError(err.response?.data?.error || "Login failed. Try again.");
@@ -76,27 +57,6 @@ const LoginSignupPane = () => {
           {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* College Dropdown */}
-            <div>
-              <label className="block text-gray-700 font-medium mb-1">
-                College
-              </label>
-              <select
-                name="college"
-                value={formData.college}
-                onChange={handleChange}
-                className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                required
-              >
-                <option value="">Select your college</option>
-                {colleges.map((college) => (
-                  <option key={college._id} value={college.name}>
-                    {college.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
             {/* Email */}
             <div>
               <label className="block text-gray-700 font-medium mb-1">

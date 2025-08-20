@@ -82,52 +82,92 @@ const HomePage = () => {
         </button>
       </div>
 
-      {/* Events Section */}
-      <div className="bg-white py-8 sm:py-12 px-4 sm:px-6">
+     {/* Events Section */}
+<div className="bg-white py-8 sm:py-12 px-4 sm:px-6 relative">
+  <Link
+    to="/AllEvents"
+    className="inline-flex items-center gap-2 hover:text-purple-600 transition"
+  >
+    <div className="flex space-x-2.5">
+      <h2 className="text-black text-2xl sm:text-3xl font-bold mb-6">
+        Upcoming Events and Clubs
+      </h2>
+    </div>
+  </Link>
+
+  {loading ? (
+    <p className="text-center text-gray-500">Loading events...</p>
+  ) : (
+    <div className="relative">
+      {/* Left Arrow */}
+      <button
+        onClick={() =>
+          document.getElementById("eventsScroll").scrollBy({ left: -300, behavior: "smooth" })
+        }
+        className="absolute left-0 top-1/2 -translate-y-1/2 bg-white shadow-md rounded-full p-2 z-10 hover:bg-gray-100"
+      >
+        ◀
+      </button>
+
+     {/* Scrollable Row */}
+<div
+  id="eventsScroll"
+  className="flex gap-4 sm:gap-6 overflow-x-auto overflow-y-hidden scroll-smooth px-10 no-scrollbar"
+>
+  {events.slice(0, 8).map((event) => (
+    <div
+      key={event._id}
+      className="bg-white rounded-xl shadow-lg overflow-hidden transform hover:scale-105 transition duration-300 h-full flex flex-col flex-shrink-0"
+      style={{ minWidth: "260px", maxWidth: "300px" }}
+    >
+      <img
+        src={event.image || bg1}
+        alt={event.title}
+        className="w-full h-60 sm:h-80 object-cover"
+      />
+      <div className="p-3 sm:p-4 flex flex-col flex-grow">
+        <h2 className="text-md sm:text-lg font-semibold text-gray-800 mb-1 sm:mb-2">
+          {event.title}
+        </h2>
+        <p className="text-sm text-gray-500 mb-4">
+          📅 {event.date ? new Date(event.date).toLocaleDateString() : "No date"} <br />
+          📍 {event.location || "No location"}
+        </p>
+        {/* 🔥 Button always aligned at bottom */}
         <Link
-          to="/AllEvents"
-          className="inline-flex items-center gap-2 hover:text-purple-600 transition"
+          to={`/Individual/${event._id}`}
+          className="mt-auto bg-purple-600 text-white px-3 py-2 rounded-lg text-sm sm:text-base hover:bg-purple-700 transition"
         >
-          <div className="flex space-x-2.5">
-            <h2 className="text-black text-2xl sm:text-3xl font-bold mb-6">
-              Upcoming Events and Clubs
-            </h2>
-          </div>
+          View Details
         </Link>
-        {loading ? (
-          <p className="text-center text-gray-500">Loading events...</p>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-6">
-            {events.slice(0, 4).map((event) => (
-              <div
-                key={event._id}
-                className="bg-white rounded-xl shadow-lg overflow-hidden transform hover:scale-105 transition duration-300 h-full flex flex-col"
-              >
-                <img
-                  src={event.image || bg1}
-                  alt={event.title}
-                  className="w-full h-60 sm:h-80 object-cover"
-                />
-                <div className="p-3 sm:p-4 flex flex-col flex-grow">
-                  <h2 className="text-md sm:text-lg font-semibold text-gray-800 mb-1 sm:mb-2">
-                    {event.title}
-                  </h2>
-                  <p className="text-sm text-gray-500 mb-4">
-                    📅 {event.date ? new Date(event.date).toLocaleDateString() : "No date"} <br />
-                    📍 {event.location || "No location"}
-                  </p>
-                  <Link
-                    to={`/Individual/${event._id}`}
-                    className="mt-auto bg-purple-600 text-white px-3 py-2 rounded-lg text-sm sm:text-base hover:bg-purple-700 transition"
-                  >
-                    View Details
-                  </Link>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
+    </div>
+  ))}
+
+  {/* See All Card */}
+  <Link
+    to="/AllEvents"
+    className="bg-purple-100 rounded-xl shadow-lg flex items-center justify-center text-purple-700 font-semibold text-lg flex-shrink-0"
+    style={{ minWidth: "260px", maxWidth: "300px" }}
+  >
+    See All Events →
+  </Link>
+</div>
+
+
+      {/* Right Arrow */}
+      <button
+        onClick={() =>
+          document.getElementById("eventsScroll").scrollBy({ left: 300, behavior: "smooth" })
+        }
+        className="absolute right-0 top-1/2 -translate-y-1/2 bg-white shadow-md rounded-full p-2 z-10 hover:bg-gray-100"
+      >
+        ▶
+      </button>
+    </div>
+  )}
+</div>
+
 
       {/* The Best of Live Events */}
       <div
