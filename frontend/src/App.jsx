@@ -1,4 +1,3 @@
-// src/App.jsx
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
@@ -18,11 +17,12 @@ import StudentGuidePage from "./pages/StudentGuidePage";
 import BookTicketPage from "./pages/BookTicketPage";
 import FaqPage from "./pages/FaqPage";
 import ChatPage from "./pages/ChatPage";
+import ChatButton from "./components/ChatButton"; // import new button
 
 function AppWrapper() {
   const location = useLocation();
 
-  // Pages where you don't want the footer
+  // Pages where you don't want the footer or chat button
   const hideFooterRoutes = ["/Chat"];
 
   return (
@@ -48,6 +48,9 @@ function AppWrapper() {
 
       {/* Show footer only if not in hideFooterRoutes */}
       {!hideFooterRoutes.includes(location.pathname) && <Footer />}
+
+      {/* Floating Chat Button (hidden only on chat page) */}
+      {!hideFooterRoutes.includes(location.pathname) && <ChatButton />}
     </>
   );
 }
