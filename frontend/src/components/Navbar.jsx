@@ -6,9 +6,13 @@ import "@fontsource/jost";
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [stateDropdownOpen, setStateDropdownOpen] = useState(false);
+  const [collegeDropdownOpen, setCollegeDropdownOpen] = useState(false);
   const [selectedState, setSelectedState] = useState("Hyderabad");
+  const [colleges, setColleges] = useState([]);
+  const [selectedCollege, setSelectedCollege] = useState("Select College");
 
-  const dropdownRef = useRef(null);
+  const stateDropdownRef = useRef(null);
+  const collegeDropdownRef = useRef(null);
 
   const states = [
     "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
@@ -19,16 +23,29 @@ const Navbar = () => {
     "West Bengal"
   ];
 
-  const handleStateSelect = (state) => {
-    setSelectedState(state);
-    setStateDropdownOpen(false);
-  };
+  // 📌 Fetch colleges from backend
+  useEffect(() => {
+    const fetchColleges = async () => {
+      try {
+        const res = await fetch("http://localhost:8000/api/colleges");
+        const data = await res.json();
+        setColleges(data);
+      } catch (err) {
+        console.error("Error fetching colleges:", err);
+      }
+    };
+    fetchColleges();
+  }, []);
 
-  // Close dropdown when clicking outside
+  // 📌 Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      if (
+        (stateDropdownRef.current && !stateDropdownRef.current.contains(event.target)) &&
+        (collegeDropdownRef.current && !collegeDropdownRef.current.contains(event.target))
+      ) {
         setStateDropdownOpen(false);
+        setCollegeDropdownOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -42,7 +59,7 @@ const Navbar = () => {
         background: "linear-gradient(to right, #2E005F, #5B00B7, #7E00E0)",
       }}
     >
-      {/* Left Logo */}
+      {/* Logo */}
       <div className="flex items-center py-3 text-[50px] gap-3">
         <Link to="/">
           <span
@@ -51,7 +68,6 @@ const Navbar = () => {
               fontFamily: "Jost, sans-serif",
               fontWeight: "1000",
               fontSize: "30px",
-              letterSpacing: "0",
               color: "#fff",
             }}
           >
@@ -68,44 +84,39 @@ const Navbar = () => {
         {menuOpen ? <FaTimes /> : <FaBars />}
       </div>
 
-      {/* Search Bar (Desktop Only) */}
+      {/* Search Bar */}
       <div className="hidden md:flex items-center bg-white rounded-full px-3 py-2 w-[700px] max-w-full">
         <FaSearch className="text-gray-500 mr-2" />
         <input
           type="text"
           placeholder="Search Events, clubs and parties around you"
           className="flex-grow text-gray-700 outline-none text-sm"
-          style={{
-            fontFamily: "Jost, sans-serif",
-            fontSize: "14px",
-          }}
         />
       </div>
 
-      {/* Right Options (Desktop Only) */}
+      {/* Right Options */}
       <div
-        className="hidden md:flex items-center gap-6 font-semibold relative"
-        style={{
-          fontFamily: "Jost, sans-serif",
-          fontWeight: "700",
-          fontSize: "16px",
-          color: "#fff",
-        }}
+        className="hidden md:flex items-center gap-6 font-semibold relative text-white"
+        style={{ fontFamily: "Jost, sans-serif" }}
       >
         {/* State Dropdown */}
-        <div
-          className="flex items-center gap-1 cursor-pointer relative"
-          onClick={() => setStateDropdownOpen(!stateDropdownOpen)}
-          ref={dropdownRef}
-        >
-          {selectedState} <span className="text-xs">▼</span>
+        <div ref={stateDropdownRef} className="relative">
+          <div
+            className="flex items-center gap-1 cursor-pointer"
+            onClick={() => setStateDropdownOpen(!stateDropdownOpen)}
+          >
+            {selectedState} <span className="text-xs">▼</span>
+          </div>
           {stateDropdownOpen && (
             <div className="absolute top-8 left-0 bg-white text-black rounded shadow-lg w-48 z-50 max-h-60 overflow-y-auto">
               {states.map((state) => (
                 <div
                   key={state}
                   className="px-4 py-2 hover:bg-gray-200 cursor-pointer"
-                  onClick={() => handleStateSelect(state)}
+                  onClick={() => {
+                    setSelectedState(state);
+                    setStateDropdownOpen(false);
+                  }}
                 >
                   {state}
                 </div>
@@ -114,8 +125,34 @@ const Navbar = () => {
           )}
         </div>
 
-        <div className="flex items-center gap-1 cursor-pointer">
-          College <span className="text-xs">▼</span>
+        {/* College Dropdown */}
+        <div ref={collegeDropdownRef} className="relative">
+          <div
+            className="flex items-center gap-1 cursor-pointer"
+            onClick={() => setCollegeDropdownOpen(!collegeDropdownOpen)}
+          >
+            {selectedCollege} <span className="text-xs">▼</span>
+          </div>
+          {collegeDropdownOpen && (
+            <div className="absolute top-8 left-0 bg-white text-black rounded shadow-lg w-56 z-50 max-h-60 overflow-y-auto">
+              {colleges.length > 0 ? (
+                colleges.map((college) => (
+                  <div
+                    key={college._id}
+                    className="px-4 py-2 hover:bg-gray-200 cursor-pointer"
+                    onClick={() => {
+                      setSelectedCollege(college.name);
+                      setCollegeDropdownOpen(false);
+                    }}
+                  >
+                    {college.name}
+                  </div>
+                ))
+              ) : (
+                <div className="px-4 py-2 text-gray-500">No colleges found</div>
+              )}
+            </div>
+          )}
         </div>
 
         <Link to="/LogSign">
@@ -124,54 +161,6 @@ const Navbar = () => {
           </div>
         </Link>
       </div>
-
-      {/* Mobile Menu (Full Width) */}
-      {menuOpen && (
-        <div className="absolute top-16 left-0 w-full bg-[#2E005F] text-white flex flex-col p-6 gap-4 md:hidden z-50">
-          {/* Search Bar (Mobile) */}
-          <div className="flex items-center bg-white rounded-full px-3 py-2 w-full">
-            <FaSearch className="text-gray-500 mr-2" />
-            <input
-              type="text"
-              placeholder="Search Events, clubs and parties around you"
-              className="flex-grow text-gray-700 outline-none text-sm"
-              style={{
-                fontFamily: "Jost, sans-serif",
-                fontSize: "14px",
-              }}
-            />
-          </div>
-
-          {/* State Dropdown (Mobile) */}
-          <div className="relative" ref={dropdownRef}>
-            <div
-              className="flex items-center justify-between cursor-pointer py-2"
-              onClick={() => setStateDropdownOpen(!stateDropdownOpen)}
-            >
-              {selectedState} <span className="text-xs">▼</span>
-            </div>
-            {stateDropdownOpen && (
-              <div className="bg-white text-black rounded shadow-lg mt-2 w-full max-h-48 overflow-y-auto">
-                {states.map((state) => (
-                  <div
-                    key={state}
-                    className="px-4 py-2 hover:bg-gray-200 cursor-pointer"
-                    onClick={() => handleStateSelect(state)}
-                  >
-                    {state}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="cursor-pointer">College ▼</div>
-
-          <Link to="/LogSign" className="flex items-center gap-2 cursor-pointer">
-            <FaUser /> Hi, Guest
-          </Link>
-        </div>
-      )}
     </nav>
   );
 };

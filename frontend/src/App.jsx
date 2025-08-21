@@ -12,8 +12,13 @@ import AllEventsPage from "./pages/AllEventsPage";
 import PostEventPage from "./pages/PostEventPage";
 import LoginSignupPage from "./pages/LoginSignupPage";
 import HomePage from "./pages/HomePage";
+
 import AboutUsPage from "./pages/AboutUsPage";
+import SupportPage from "./pages/SupportPage";
+import StudentGuidePage from "./pages/StudentGuidePage";
 import BookTicketPage from "./pages/BookTicketPage";
+import FaqPage from "./pages/FaqPage";
+import ChatPage from "./pages/ChatPage";
 
 function App() {
   return (
@@ -27,8 +32,13 @@ function App() {
         <Route path="/BookTicket" element={<BookTicketPage />} />
         <Route path="/Review" element={<ReviewsPage />} />
         <Route path="/PostEvent" element={<PostEventPage />} />
+           <Route path="/Chat" element={<ChatPage />} />
         <Route path="/LogSign" element={<LoginSignupPage />} />
         <Route path="/BlogPage" element={<BlogPage />} />
+         <Route path="/Support" element={<SupportPage />} />
+            <Route path="/StudentGuide" element={<StudentGuidePage/>} />
+        <Route path="/FAQ" element={<FaqPage />} />
+            <Route path="/StudentGuide" element={<SupportPage/>} />
              <Route path="/Terms" element={<TermsPage />} />
          <Route path="/PrivacyPolicy" element={<PrivacyPolicyPage />} />
       </Routes>

@@ -2,6 +2,8 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const LoginSignupPane = () => {
   const navigate = useNavigate();
@@ -38,8 +40,13 @@ const LoginSignupPane = () => {
       localStorage.setItem("studentName", res.data.name);
       localStorage.setItem("collegeName", res.data.college.name);
 
-      // ✅ Redirect to homepage
-      navigate("/");
+      // ✅ Toast notification
+      toast.success("Successfully logged in!");
+
+      // ✅ Redirect to homepage after short delay (so toast shows)
+      setTimeout(() => {
+        navigate("/");
+      }, 1500);
     } catch (err) {
       console.error(err.response?.data);
       setError(err.response?.data?.error || "Login failed. Try again.");
@@ -120,6 +127,9 @@ const LoginSignupPane = () => {
           </Link>
         </div>
       </footer>
+
+      {/* Toast container */}
+      <ToastContainer position="top-center" autoClose={1500} />
     </div>
   );
 };

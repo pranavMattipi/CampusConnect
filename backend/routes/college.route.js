@@ -1,27 +1,28 @@
+// routes/college.route.js
 import express from "express";
 import College from "../models/college.model.js";
 
 const router = express.Router();
 
-// Add new college
+// ➕ Add new college
 router.post("/add", async (req, res) => {
   try {
-    const { name, domain, location } = req.body;
-    const college = new College({ name, domain, location });
-    await college.save();
-    res.json(college);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    const { name, domain, acquired } = req.body;
+    const newCollege = new College({ name, domain, acquired });
+    await newCollege.save();
+    res.status(201).json(newCollege);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 
-// Get all colleges
+// 📌 Get all colleges
 router.get("/", async (req, res) => {
   try {
     const colleges = await College.find();
     res.json(colleges);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 
