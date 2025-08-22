@@ -15,6 +15,8 @@ const PostEventPage = () => {
     organizerLogo: "",
     price: "",
     castMembers: "",
+    college: "", // new
+    city: "",    // new
   });
 
   const [errors, setErrors] = useState({}); // Store validation errors
@@ -172,6 +174,25 @@ const PostEventPage = () => {
           onChange={handleChange}
           className="border p-2 w-full"
         />
+
+        {/* New Fields */}
+        <input
+          type="text"
+          name="college"
+          placeholder="College"
+          value={formData.college}
+          onChange={handleChange}
+          className="border p-2 w-full"
+        />
+        <input
+          type="text"
+          name="city"
+          placeholder="City"
+          value={formData.city}
+          onChange={handleChange}
+          className="border p-2 w-full"
+        />
+
         <input
           type="text"
           name="highlights"

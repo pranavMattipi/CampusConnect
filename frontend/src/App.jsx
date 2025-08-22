@@ -11,6 +11,7 @@ import AllEventsPage from "./pages/AllEventsPage";
 import PostEventPage from "./pages/PostEventPage";
 import LoginSignupPage from "./pages/LoginSignupPage";
 import HomePage from "./pages/HomePage";
+import IndividualCollegePage from "./pages/IndividualCollegePage";
 import AboutUsPage from "./pages/AboutUsPage";
 import SupportPage from "./pages/SupportPage";
 import StudentGuidePage from "./pages/StudentGuidePage";
@@ -30,6 +31,7 @@ function AppWrapper() {
       <Navbar />
       <Routes>
         <Route path="/" element={<HomePage />} />
+           <Route path="/IndividualCollege" element={<IndividualCollegePage />} />
         <Route path="/AboutUs" element={<AboutUsPage />} />
         <Route path="/AllEvents" element={<AllEventsPage />} />
         <Route path="/Individual/:id" element={<IndividualPage />} />
