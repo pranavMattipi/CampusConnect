@@ -1,9 +1,10 @@
-// src/pages/LoginSignupPane.jsx
+// src/pages/LoginSignupPage.jsx
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import loginimage from "../assets/loginimage.jpg"; // ✅ Import background image
 
 const LoginSignupPane = () => {
   const navigate = useNavigate();
@@ -54,8 +55,11 @@ const LoginSignupPane = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
-      <div className="flex flex-1 items-center justify-center px-4">
+    <div
+      className="flex flex-col min-h-screen bg-gray-50 bg-cover bg-center"
+      style={{ backgroundImage: `url(${loginimage})` }} // ✅ Background image added
+    >
+      <div className="flex flex-1 items-center justify-center px-4 bg-black/40">
         <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8">
           <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
             College Login

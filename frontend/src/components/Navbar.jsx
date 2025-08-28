@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaSearch, FaUser, FaBars, FaTimes } from "react-icons/fa";
 import "@fontsource/jost";
 
@@ -7,12 +7,26 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [stateDropdownOpen, setStateDropdownOpen] = useState(false);
   const [collegeDropdownOpen, setCollegeDropdownOpen] = useState(false);
+  const [guestDropdownOpen, setGuestDropdownOpen] = useState(false);
+
   const [selectedState, setSelectedState] = useState("Hyderabad");
   const [colleges, setColleges] = useState([]);
   const [selectedCollege, setSelectedCollege] = useState("Select College");
 
+  // ✅ Track logged-in user
+  const [studentName, setStudentName] = useState(null);
+
+  // ✅ Search states
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [showSearchDropdown, setShowSearchDropdown] = useState(false);
+
   const stateDropdownRef = useRef(null);
   const collegeDropdownRef = useRef(null);
+  const guestDropdownRef = useRef(null);
+  const searchDropdownRef = useRef(null);
+
+  const navigate = useNavigate();
 
   const states = [
     "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
@@ -23,7 +37,7 @@ const Navbar = () => {
     "West Bengal"
   ];
 
-  // 📌 Fetch colleges from backend
+  // 📌 Fetch colleges + login check
   useEffect(() => {
     const fetchColleges = async () => {
       try {
@@ -35,22 +49,58 @@ const Navbar = () => {
       }
     };
     fetchColleges();
+
+    // ✅ Check if user is logged in
+    const name = localStorage.getItem("studentName");
+    if (name) setStudentName(name);
   }, []);
 
-  // 📌 Close dropdowns when clicking outside
+  // 📌 Fetch events when typing
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      return;
+    }
+    const fetchEvents = async () => {
+      try {
+        const res = await fetch(`http://localhost:8000/api/events?search=${searchQuery}`);
+        const data = await res.json();
+        setSearchResults(data);
+        setShowSearchDropdown(true);
+      } catch (err) {
+        console.error("Error fetching events:", err);
+      }
+    };
+    const delayDebounce = setTimeout(fetchEvents, 300); // debounce
+    return () => clearTimeout(delayDebounce);
+  }, [searchQuery]);
+
+  // 📌 Close dropdowns on outside click
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
         (stateDropdownRef.current && !stateDropdownRef.current.contains(event.target)) &&
-        (collegeDropdownRef.current && !collegeDropdownRef.current.contains(event.target))
+        (collegeDropdownRef.current && !collegeDropdownRef.current.contains(event.target)) &&
+        (guestDropdownRef.current && !guestDropdownRef.current.contains(event.target)) &&
+        (searchDropdownRef.current && !searchDropdownRef.current.contains(event.target))
       ) {
         setStateDropdownOpen(false);
         setCollegeDropdownOpen(false);
+        setGuestDropdownOpen(false);
+        setShowSearchDropdown(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // ✅ Logout handler
+  const handleLogout = () => {
+    localStorage.removeItem("studentName");
+    localStorage.removeItem("studentId");
+    setStudentName(null);
+    setGuestDropdownOpen(false);
+  };
 
   return (
     <nav
@@ -85,13 +135,35 @@ const Navbar = () => {
       </div>
 
       {/* Search Bar */}
-      <div className="hidden md:flex items-center bg-white rounded-full px-3 py-2 w-[700px] max-w-full">
+      <div className="hidden md:flex items-center bg-white rounded-full px-3 py-2 w-[700px] max-w-full relative" ref={searchDropdownRef}>
         <FaSearch className="text-gray-500 mr-2" />
         <input
           type="text"
           placeholder="Search Events, clubs and parties around you"
           className="flex-grow text-gray-700 outline-none text-sm"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          onFocus={() => searchResults.length > 0 && setShowSearchDropdown(true)}
         />
+
+        {/* Dropdown Results */}
+        {showSearchDropdown && searchResults.length > 0 && (
+          <div className="absolute top-12 left-0 bg-white shadow-lg rounded-lg w-full max-h-60 overflow-y-auto z-50">
+            {searchResults.map((event) => (
+              <div
+                key={event._id}
+                className="px-4 py-2 hover:bg-gray-200 cursor-pointer"
+                onClick={() => {
+                  navigate(`/events/${event._id}`);
+                  setSearchQuery("");
+                  setShowSearchDropdown(false);
+                }}
+              >
+                {event.name}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Right Options */}
@@ -155,11 +227,41 @@ const Navbar = () => {
           )}
         </div>
 
-        <Link to="/LogSign">
-          <div className="flex items-center gap-2 cursor-pointer">
-            <FaUser /> Hi, Guest
+        {/* Hi, Guest / User Dropdown */}
+        <div ref={guestDropdownRef} className="relative">
+          <div
+            className="flex items-center gap-2 cursor-pointer"
+            onClick={() => setGuestDropdownOpen(!guestDropdownOpen)}
+          >
+            <FaUser /> Hi, {studentName || "Guest"} <span className="text-xs">▼</span>
           </div>
-        </Link>
+
+          {guestDropdownOpen && (
+            <div className="absolute top-8 right-0 bg-white text-black rounded shadow-lg w-40 z-50">
+              {!studentName ? (
+                <Link to="/LogSign">
+                  <div className="px-4 py-2 hover:bg-gray-200 cursor-pointer">
+                    Login
+                  </div>
+                </Link>
+              ) : (
+                <>
+                  <Link to="/profile">
+                    <div className="px-4 py-2 hover:bg-gray-200 cursor-pointer">
+                      Profile
+                    </div>
+                  </Link>
+                  <div
+                    className="px-4 py-2 hover:bg-gray-200 cursor-pointer"
+                    onClick={handleLogout}
+                  >
+                    Logout
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </nav>
   );

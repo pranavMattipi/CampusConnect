@@ -4,6 +4,7 @@ import connectDB from "./config/db.js";
 import cors from "cors";
 
 // Routes
+import searchRoutes from "./routes/search.route.js";
 import eventRoutes from "./routes/event.route.js";
 import authRoutes from "./routes/auth.route.js";
 import studentRoutes from "./routes/student.route.js";
@@ -25,6 +26,7 @@ app.use("/api/events", eventRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/students", studentRoutes);
 app.use("/api/colleges", collegeRoutes);
+app.use("/api/search", searchRoutes);
 
 // Base route
 app.get("/", (req, res) => {
