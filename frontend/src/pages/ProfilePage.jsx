@@ -1,37 +1,67 @@
 // src/pages/ProfilePage.jsx
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 
 const ProfilePage = () => {
   const [student, setStudent] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    // 🔹 For now, using dummy data instead of API
-    const dummyStudent = {
-      name: "Pranav Mattipi",
-      rollNumber: "CSE2025001",
-      studentId: "STU123456",
-      branch: "Computer Science & Engineering",
-      year: "2nd Year",
-      email: "pranav.m@mahindra.edu",
-      college: { name: "Mahindra University" },
-      avatar:
-        "https://ui-avatars.com/api/?name=Pranav+M&background=6d28d9&color=fff&size=128", // avatar generator
+    const fetchStudent = async () => {
+      try {
+        setLoading(true);
+        setError("");
+
+        // 🔹 Replace this with actual logged-in student's studentId or hardcode for now
+        const loggedInStudentId = "S1756400179340";
+
+        const response = await axios.get("http://localhost:8000/api/students");
+        const allStudents = response.data;
+
+        // Find the student by studentId
+        const studentData = allStudents.find(
+          (s) => s.studentId === loggedInStudentId
+        );
+
+        if (!studentData) {
+          setError("Student not found");
+        } else {
+          // Convert year number to display string
+          studentData.year = `${studentData.year} ${
+            studentData.year === 1 ? "st" : studentData.year === 2 ? "nd" : studentData.year === 3 ? "rd" : "th"
+          } Year`;
+
+          setStudent(studentData);
+        }
+      } catch (err) {
+        console.error("Error fetching student:", err.response || err.message);
+        setError("Failed to load profile. Check console.");
+      } finally {
+        setLoading(false);
+      }
     };
 
-    setTimeout(() => {
-      setStudent(dummyStudent);
-    }, 800);
+    fetchStudent();
   }, []);
 
-  if (!student) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <p className="text-gray-500 text-lg animate-pulse">
-          Loading profile...
-        </p>
+        <p className="text-gray-500 text-lg animate-pulse">Loading profile...</p>
       </div>
     );
   }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <p className="text-red-500 text-lg">{error}</p>
+      </div>
+    );
+  }
+
+  if (!student) return null;
 
   return (
     <div className="min-h-screen py-12 px-6 bg-gray-50">
@@ -40,7 +70,12 @@ const ProfilePage = () => {
         <div className="bg-gradient-to-r from-purple-600 to-indigo-600 h-40 relative">
           <div className="absolute left-1/2 transform -translate-x-1/2 bottom-0 translate-y-1/2">
             <img
-              src={student.avatar}
+              src={
+                student.avatar ||
+                `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                  student.name
+                )}&background=6d28d9&color=fff&size=128`
+              }
               alt={student.name}
               className="w-28 h-28 rounded-full border-4 border-white shadow-lg"
             />
@@ -63,7 +98,10 @@ const ProfilePage = () => {
             <ProfileField label="Student ID" value={student.studentId} />
             <ProfileField label="Year" value={student.year} />
             <ProfileField label="Email" value={student.email} />
-            <ProfileField label="College" value={student.college?.name} />
+            <ProfileField
+              label="College"
+              value={student.college?.name || "Unknown"}
+            />
           </div>
 
           {/* Action Buttons */}

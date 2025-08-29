@@ -1,3 +1,4 @@
+// src/App.jsx
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 
@@ -6,6 +7,7 @@ import Footer from "./components/Footer";
 import ChatButton from "./components/ChatButton";
 import ScrollToTop from "./components/ScrollToTop";
 
+// Pages
 import HomePage from "./pages/HomePage";
 import IndividualCollegePage from "./pages/IndividualCollegePage";
 import AboutUsPage from "./pages/AboutUsPage";
@@ -27,15 +29,16 @@ import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 function AppWrapper() {
   const location = useLocation();
 
-  // Pages where footer and chat button should be hidden
-  const hideFooterRoutes = ["/Chat"];
+  // Routes where Navbar, Footer, and ChatButton should be hidden
+  const hideUIRoutes = ["/Chat"];
 
   return (
     <>
       {/* Scroll to top on route change */}
       <ScrollToTop />
 
-      <Navbar />
+      {/* ✅ Hide Navbar on Chat page */}
+      {!hideUIRoutes.includes(location.pathname) && <Navbar />}
 
       <Routes>
         <Route path="/" element={<HomePage />} />
@@ -57,19 +60,17 @@ function AppWrapper() {
         <Route path="/PrivacyPolicy" element={<PrivacyPolicyPage />} />
       </Routes>
 
-      {/* Footer and Chat Button (hidden on specific routes) */}
-      {!hideFooterRoutes.includes(location.pathname) && <Footer />}
-      {!hideFooterRoutes.includes(location.pathname) && <ChatButton />}
+      {/* ✅ Hide Footer & Chat Button on Chat page */}
+      {!hideUIRoutes.includes(location.pathname) && <Footer />}
+      {!hideUIRoutes.includes(location.pathname) && <ChatButton />}
     </>
   );
 }
 
-function App() {
+export default function App() {
   return (
     <Router>
       <AppWrapper />
     </Router>
   );
 }
-
-export default App;
