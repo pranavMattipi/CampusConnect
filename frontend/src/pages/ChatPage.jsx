@@ -41,8 +41,17 @@ export default function ChatPage() {
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
 
-  // ✅ Fetch colleges from backend
+  // ✅ Load messages from localStorage on mount
   useEffect(() => {
+    const savedChats = localStorage.getItem("chats");
+    if (savedChats) {
+      const parsed = JSON.parse(savedChats);
+      setChats(parsed);
+      if (parsed.length > 0) setSelectedId(parsed[0].id);
+      return; // prevent re-fetch if stored
+    }
+
+    // ✅ Fetch colleges from backend if no saved chats
     const fetchColleges = async () => {
       try {
         const res = await axios.get("http://localhost:8000/api/colleges");
@@ -75,9 +84,8 @@ export default function ChatPage() {
         }));
 
         setChats(mappedChats);
-        if (mappedChats.length > 0) {
-          setSelectedId(mappedChats[0].id);
-        }
+        localStorage.setItem("chats", JSON.stringify(mappedChats));
+        if (mappedChats.length > 0) setSelectedId(mappedChats[0].id);
       } catch (err) {
         console.error("Error fetching colleges:", err);
       }
@@ -85,6 +93,13 @@ export default function ChatPage() {
 
     fetchColleges();
   }, []);
+
+  // ✅ Persist chats whenever they change
+  useEffect(() => {
+    if (chats.length > 0) {
+      localStorage.setItem("chats", JSON.stringify(chats));
+    }
+  }, [chats]);
 
   const selectedChat = chats.find((c) => c.id === selectedId);
 
@@ -124,7 +139,7 @@ export default function ChatPage() {
     setMessage("");
   };
 
-  // ✅ scroll into view
+  // ✅ Scroll into view when new message added
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
@@ -359,7 +374,7 @@ export default function ChatPage() {
             {/* Scroll Down Button */}
             {showScrollBtn && (
               <button
-                className="absolute bottom-40 right-6 p-2 bg-black text-white rounded-full shadow-lg"
+                className="absolute bottom-24 right-6 p-2 bg-black text-white rounded-full shadow-lg"
                 onClick={() =>
                   messagesEndRef.current?.scrollIntoView({
                     behavior: "smooth",

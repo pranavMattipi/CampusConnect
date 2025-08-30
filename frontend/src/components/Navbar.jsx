@@ -197,35 +197,7 @@ const Navbar = () => {
           )}
         </div>
 
-        {/* College Dropdown */}
-        <div ref={collegeDropdownRef} className="relative">
-          <div
-            className="flex items-center gap-1 cursor-pointer"
-            onClick={() => setCollegeDropdownOpen(!collegeDropdownOpen)}
-          >
-            {selectedCollege} <span className="text-xs">▼</span>
-          </div>
-          {collegeDropdownOpen && (
-            <div className="absolute top-8 left-0 bg-white text-black rounded shadow-lg w-56 z-50 max-h-60 overflow-y-auto">
-              {colleges.length > 0 ? (
-                colleges.map((college) => (
-                  <div
-                    key={college._id}
-                    className="px-4 py-2 hover:bg-gray-200 cursor-pointer"
-                    onClick={() => {
-                      setSelectedCollege(college.name);
-                      setCollegeDropdownOpen(false);
-                    }}
-                  >
-                    {college.name}
-                  </div>
-                ))
-              ) : (
-                <div className="px-4 py-2 text-gray-500">No colleges found</div>
-              )}
-            </div>
-          )}
-        </div>
+     
 
         {/* Hi, Guest / User Dropdown */}
         <div ref={guestDropdownRef} className="relative">

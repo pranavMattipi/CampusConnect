@@ -32,21 +32,25 @@ function AppWrapper() {
   // Routes where Navbar, Footer, and ChatButton should be hidden
   const hideUIRoutes = ["/Chat"];
 
+  const shouldHideUI = hideUIRoutes.includes(location.pathname);
+
   return (
     <>
-      {/* Scroll to top on route change */}
+      {/* ✅ Scroll to top on every route change */}
       <ScrollToTop />
 
-      {/* ✅ Hide Navbar on Chat page */}
-      {!hideUIRoutes.includes(location.pathname) && <Navbar />}
+      {/* ✅ Navbar hidden only on /Chat */}
+      {!shouldHideUI && <Navbar />}
 
+      {/* ✅ Define all routes */}
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/IndividualCollege" element={<IndividualCollegePage />} />
         <Route path="/AboutUs" element={<AboutUsPage />} />
         <Route path="/AllEvents" element={<AllEventsPage />} />
         <Route path="/Individual/:id" element={<IndividualPage />} />
-        <Route path="/BookTicket" element={<BookTicketPage />} />
+        {/* ✅ Fix: add :id param here */}
+        <Route path="/BookTicket/:id" element={<BookTicketPage />} />
         <Route path="/Profile" element={<ProfilePage />} />
         <Route path="/Review" element={<ReviewsPage />} />
         <Route path="/PostEvent" element={<PostEventPage />} />
@@ -60,9 +64,9 @@ function AppWrapper() {
         <Route path="/PrivacyPolicy" element={<PrivacyPolicyPage />} />
       </Routes>
 
-      {/* ✅ Hide Footer & Chat Button on Chat page */}
-      {!hideUIRoutes.includes(location.pathname) && <Footer />}
-      {!hideUIRoutes.includes(location.pathname) && <ChatButton />}
+      {/* ✅ Footer and Chat button also hidden on /Chat */}
+      {!shouldHideUI && <Footer />}
+      {!shouldHideUI && <ChatButton />}
     </>
   );
 }

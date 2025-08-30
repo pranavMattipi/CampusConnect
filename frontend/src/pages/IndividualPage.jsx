@@ -56,12 +56,12 @@ const IndividualPage = () => {
             </p>
           </div>
           <div className="flex gap-4">
-            <Link
-              to="/BookTicket"
-              className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition"
-            >
-              🎟 Book Tickets
-            </Link>
+           <Link
+  to={`/BookTicket/${event._id}`}
+  className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition"
+>
+  🎟 Book Tickets
+</Link>
             <Link
               to={`/Review`}
               className="bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition"
