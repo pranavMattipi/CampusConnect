@@ -23,6 +23,7 @@ import {
   Check,
   CheckCheck,
   Home,
+  Trash2, // ✅ delete icon
 } from "lucide-react";
 
 export default function ChatPage() {
@@ -137,6 +138,20 @@ export default function ChatPage() {
       )
     );
     setMessage("");
+  };
+
+  // ✅ Delete message function
+  const handleDeleteMessage = (chatId, msgId) => {
+    setChats((prev) =>
+      prev.map((chat) =>
+        chat.id === chatId
+          ? {
+              ...chat,
+              messages: chat.messages.filter((msg) => msg.id !== msgId),
+            }
+          : chat
+      )
+    );
   };
 
   // ✅ Scroll into view when new message added
@@ -342,12 +357,12 @@ export default function ChatPage() {
                 .map((msg) => (
                   <div
                     key={msg.id}
-                    className={`flex ${
+                    className={`flex group ${
                       msg.from === "me" ? "justify-end" : "justify-start"
                     }`}
                   >
                     <div
-                      className={`max-w-xs px-3 py-2 rounded-lg text-sm ${
+                      className={`relative max-w-xs px-3 py-2 rounded-lg text-sm ${
                         msg.from === "me"
                           ? "bg-purple-500 text-white"
                           : darkMode
@@ -365,6 +380,16 @@ export default function ChatPage() {
                             <CheckCheck size={11} className="inline ml-1" />
                           ) : null)}
                       </div>
+
+                      {/* ✅ Delete button (only for my messages) */}
+                      {msg.from === "me" && (
+                        <button
+                          onClick={() => handleDeleteMessage(selectedChat.id, msg.id)}
+                          className="absolute -top-2 -right-2 p-1 rounded-full bg-red-500 text-white opacity-0 group-hover:opacity-100 transition"
+                        >
+                          <Trash2 size={12} />
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -374,7 +399,7 @@ export default function ChatPage() {
             {/* Scroll Down Button */}
             {showScrollBtn && (
               <button
-                className="absolute bottom-24 right-6 p-2 bg-black text-white rounded-full shadow-lg"
+                className="absolute bottom-40 right-6 p-2 bg-black text-white rounded-full shadow-lg"
                 onClick={() =>
                   messagesEndRef.current?.scrollIntoView({
                     behavior: "smooth",
