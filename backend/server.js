@@ -21,40 +21,25 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Routes
+// API Routes
 app.use("/api/events", eventRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/students", studentRoutes);
 app.use("/api/colleges", collegeRoutes);
 app.use("/api/search", searchRoutes);
 
-// Base route
+// Root route
 app.get("/", (req, res) => {
-  res.send("College Events & Student API is running...");
+  res.send("✅ College Events & Student API is running...");
 });
 
-// Start server
-const PORT = process.env.PORT || 8000;
-app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
+// --- Important for Vercel ---
+// Export the app (Vercel will handle the server)
+export default app;
 
-
-//STUDENT FORMAT
-//http://localhost:8000/api/students/add
-// {
-//   "name": "ParamM",
-//   "rollNumber": "CSE2025026",
-//   "branch": "Computer Science",
-//   "year": 2,
-//   "email": "se24ucse144@iitd.ac.in",
-//   "password": "helloworld123",
-//   "collegeId": "68a333cfa5fc739f0ea5ccd5"
-// }
-
-
-//COLLEGE FORMAT
-//http://localhost:8000/api/colleges/add
-// {
-//   "name": "Mahindra University",
-//   "domain": "mahindrauniversity.edu.in",
-//   "acquired": false
-// }
+// --- Local development mode ---
+// Only run app.listen if not in Vercel environment
+if (process.env.NODE_ENV !== "production") {
+  const PORT = process.env.PORT || 8000;
+  app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
+}
