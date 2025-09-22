@@ -23,7 +23,7 @@ import {
   Check,
   CheckCheck,
   Home,
-  Trash2, // ✅ delete icon
+  Trash2,
 } from "lucide-react";
 
 export default function ChatPage() {
@@ -42,60 +42,57 @@ export default function ChatPage() {
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
 
-  // ✅ Load messages from localStorage on mount
+  // ✅ Load chats from localStorage OR fetch from backend if not available
   useEffect(() => {
     const savedChats = localStorage.getItem("chats");
     if (savedChats) {
       const parsed = JSON.parse(savedChats);
       setChats(parsed);
       if (parsed.length > 0) setSelectedId(parsed[0].id);
-      return; // prevent re-fetch if stored
+    } else {
+      const fetchColleges = async () => {
+        try {
+          const res = await axios.get("http://localhost:8000/api/colleges");
+          const colleges = res.data;
+
+          const mappedChats = colleges.map((college) => ({
+            id: college._id,
+            name: college.name,
+            group: true,
+            lastSeen: "online",
+            avatar: college.name
+              .split(" ")
+              .map((w) => w[0])
+              .join("")
+              .slice(0, 2)
+              .toUpperCase(),
+            pinned: false,
+            muted: false,
+            favorite: false,
+            unread: Math.floor(Math.random() * 5),
+            messages: [
+              {
+                id: 1,
+                from: "them",
+                text: `${college.name} events and updates will appear here soon! 🎉`,
+                time: "12:00",
+                date: "Today",
+              },
+            ],
+          }));
+
+          setChats(mappedChats);
+          if (mappedChats.length > 0) setSelectedId(mappedChats[0].id);
+        } catch (err) {
+          console.error("Error fetching colleges:", err);
+        }
+      };
+
+      fetchColleges();
     }
-
-    // ✅ Fetch colleges from backend if no saved chats
-    const fetchColleges = async () => {
-      try {
-        const res = await axios.get("http://localhost:8000/api/colleges");
-        const colleges = res.data;
-
-        const mappedChats = colleges.map((college) => ({
-          id: college._id,
-          name: college.name,
-          group: true,
-          lastSeen: "online",
-          avatar: college.name
-            .split(" ")
-            .map((w) => w[0])
-            .join("")
-            .slice(0, 2)
-            .toUpperCase(),
-          pinned: false,
-          muted: false,
-          favorite: false,
-          unread: Math.floor(Math.random() * 5),
-          messages: [
-            {
-              id: 1,
-              from: "them",
-              text: `${college.name} events and updates will appear here soon! 🎉`,
-              time: "12:00",
-              date: "Today",
-            },
-          ],
-        }));
-
-        setChats(mappedChats);
-        localStorage.setItem("chats", JSON.stringify(mappedChats));
-        if (mappedChats.length > 0) setSelectedId(mappedChats[0].id);
-      } catch (err) {
-        console.error("Error fetching colleges:", err);
-      }
-    };
-
-    fetchColleges();
   }, []);
 
-  // ✅ Persist chats whenever they change
+  // ✅ Save chats to localStorage whenever they change
   useEffect(() => {
     if (chats.length > 0) {
       localStorage.setItem("chats", JSON.stringify(chats));
@@ -140,7 +137,7 @@ export default function ChatPage() {
     setMessage("");
   };
 
-  // ✅ Delete message function
+  // ✅ Delete message and persist
   const handleDeleteMessage = (chatId, msgId) => {
     setChats((prev) =>
       prev.map((chat) =>
@@ -154,7 +151,7 @@ export default function ChatPage() {
     );
   };
 
-  // ✅ Scroll into view when new message added
+  // ✅ Scroll to bottom on new messages
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
@@ -180,7 +177,7 @@ export default function ChatPage() {
 
   return (
     <div
-      className={`flex h-screen overflow-hidden relative ${
+      className={`flex h-screen overflow-hidden relative pr-4 ${
         darkMode ? "bg-gray-900 text-white" : "bg-white text-gray-900"
       }`}
     >
@@ -381,7 +378,7 @@ export default function ChatPage() {
                           ) : null)}
                       </div>
 
-                      {/* ✅ Delete button (only for my messages) */}
+                      {/* ✅ Delete button */}
                       {msg.from === "me" && (
                         <button
                           onClick={() => handleDeleteMessage(selectedChat.id, msg.id)}
